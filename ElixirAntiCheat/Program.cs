@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using System.Diagnostics;
 
 namespace ElixirAntiCheat
@@ -8,9 +9,6 @@ namespace ElixirAntiCheat
         {
             ApplicationConfiguration.Initialize();
             Application.Run(new ANITCHEAT());
-
         }
-
-
     }
 }

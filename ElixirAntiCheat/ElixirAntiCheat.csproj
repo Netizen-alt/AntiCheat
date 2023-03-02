@@ -1,37 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>Elixir.ico</ApplicationIcon>
-    <StartupObject></StartupObject>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <Copyright>ElixirTeam</Copyright>
-  </PropertyGroup>
+	<PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="Elixir.ico" />
-  </ItemGroup>
+		<OutputType>Exe</OutputType>
+		<Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<ApplicationIcon>Elixir.ico</ApplicationIcon>
+		<StartupObject></StartupObject>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<Copyright>ElixirTeam</Copyright>
+		<PackAsTool>flase</PackAsTool>
+		<PublishSingleFile>flase</PublishSingleFile>
+		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+		<PreserveCompilationContext>false</PreserveCompilationContext>
+		
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-  </ItemGroup>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
 
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" />
+
+	<ItemGroup>
+	  <None Include="..\..\..\..\ElixirGameGuard.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+	</ItemGroup>
 
 </Project>

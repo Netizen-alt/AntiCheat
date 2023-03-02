@@ -11,6 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
+using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
+
 namespace ElixirAntiCheat
 {
     public class ProcessDetection
@@ -36,6 +39,54 @@ namespace ElixirAntiCheat
 
         static HttpClient httpClient = new HttpClient();
        
+
+        public static async void GetProfile() {
+
+            
+
+        }
+
+
+        static ulong getSteamID64(uint accountID)
+        {
+            return accountID + 76561197960265728UL;
+        }
+
+        static string dec2hex(string dec)
+        {
+            ulong value = ulong.Parse(dec);
+            return value.ToString("X");
+        }
+
+        const uint REG_DWORD = 4;
+        const int ERROR_SUCCESS = 0;
+        const int KEY_READ = 0x20019;
+
+        [System.Runtime.InteropServices.DllImport("advapi32.dll", EntryPoint = "RegOpenKeyEx")]
+        public static extern int RegOpenKeyEx(
+            RegistryHive hKey,
+            string lpSubKey,
+            int ulOptions,
+            int samDesired,
+            out IntPtr phkResult
+            );
+
+        [System.Runtime.InteropServices.DllImport("advapi32.dll", EntryPoint = "RegQueryValueEx")]
+        public static extern int RegQueryValueEx(
+            IntPtr hKey,
+            string lpValueName,
+            int lpReserved,
+            ref uint lpType,
+            out uint lpData,
+            ref uint lpcbData
+            );
+
+
+
+
+
+
+
         public static async void FindProcess()
         {
             foreach (string process in currentlyRuningProcess)
@@ -48,40 +99,102 @@ namespace ElixirAntiCheat
                         if (process.Contains(Processname[i]))
                         {                        
                             detected = true;
-                           
-                            string webhookUrl = "https://ptb.discord.com/api/webhooks/1080118189339463802/eVXIpU5IlivMrT9HoPLMnT-kRBjJdTS1ZjVWR8VZXlP5q9e7yCd9UWvXjMbyWdlj0iJJ";
-                            WebClient wc = new WebClient();
-                            string ip = wc.DownloadString("https://ipapi.co/ip");
-                            var embed = new
+
+                            int lReg;
+                            IntPtr hKey;
+
+                            lReg = RegOpenKeyEx(RegistryHive.CurrentUser, "Software\\Valve\\Steam\\ActiveProcess", 0, KEY_READ, out hKey);
+
+                            if (lReg != 0)
                             {
-                                title = "ELIXIR PROTECT",
-                                description = "ข้อมูลผู้ใช้\nIP:" + ip,
-                                color = 0xFF5733,
-                                thumbnail = new
-                                {
-                                    url = "https://www.example.com/image.png"
-                                },
-                                footet = new
-                                {
-                                text= "TEST",
-		                        icon_url= "https://i.imgur.com/AfFp7pu.png",
-	                        },
-                                timestamp = DateTime.UtcNow.ToString("o")
-                            };
+                                Console.WriteLine("Please load the Steam client and complete the login.");
+                                Console.ReadKey();
+                                Environment.Exit(0);
+                            }
 
-                            var payload = new
+                            if (lReg == ERROR_SUCCESS)
                             {
-                                embeds = new[] { embed }
-                            };
-                            await Task.Delay(5000);
-                            var json = JsonConvert.SerializeObject(payload);
+                                uint dwType = REG_DWORD;
+                                uint dwSize = sizeof(uint);
+                                uint dwValue = 0;
 
-                            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                                lReg = RegQueryValueEx(hKey,
+                                                       "ActiveUser",
+                                                       0,
+                                                       ref dwType,
+                                                       out dwValue,
+                                                       ref dwSize);
+                                uint accountID = dwValue;
+                                ulong steamID64 = getSteamID64(accountID);
+                                Console.WriteLine("Account ID: " + accountID);
+                                Console.WriteLine("SteamID64: " + steamID64);
 
-                            var response = await httpClient.PostAsync(webhookUrl, content);
+                                Console.WriteLine(dec2hex(steamID64.ToString()));
 
-                            Console.WriteLine(response.StatusCode);
+                                var steamapi = $"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=4A6A1730731B87CCB3E9AE467FBA4B68&steamids={steamID64}";
+
+                                WebClient wcX = new WebClient();
+                                string res = wcX.DownloadString(steamapi);
+                                JObject jsonx = JObject.Parse(res);
+
+                                string playerName = (string)jsonx["response"]["players"][0]["personaname"];
+                                string steamId = (string)jsonx["response"]["players"][0]["steamid"];
+                                string avatar = (string)jsonx["response"]["players"][0]["avatarfull"];
+                                string profileURl = (string)jsonx["response"]["players"][0]["profileurl"];
+
+                                if (lReg == ERROR_SUCCESS)
+                                {
+                                    Console.WriteLine(lReg);
+                                    if (dwValue == 0)
+                                    {
+                                        Console.WriteLine("Please login to Steam before entering the game.");
+                                        Console.ReadKey();
+                                        Environment.Exit(0);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("You are logged in to Steam.");
+
+
+
+                                        string webhookUrl = "https://ptb.discord.com/api/webhooks/1080118189339463802/eVXIpU5IlivMrT9HoPLMnT-kRBjJdTS1ZjVWR8VZXlP5q9e7yCd9UWvXjMbyWdlj0iJJ";
+                                        WebClient wc = new WebClient();
+                                        string ip = wc.DownloadString("https://ipapi.co/ip");
+                                        var embed = new
+                                        {
+                                            title = "ELIXIR PROTECT",
+                                            author = new
+                                            {
+                                                name = $"{playerName}",
+                                                icon_url = $"{avatar}",
+                                                url= $"{profileURl}"
+                                            },
+                                            description = $"ข้อมูลผู้ใช้: {playerName}\nสตรีมไอดี: {steamId}\nโปรแกรมที่เปิด: {Processname[i]}\nIP: {ip}",
+                                            color = 0xFF5733,
+                                            footer = new
+                                            {
+                                                text = "ElixirProtect By: HELLO JJ#2631"
+                                            },
+                                            timestamp = DateTime.UtcNow.ToString("o")
+                                        };
+
+                                        var payload = new
+                                        {
+                                            embeds = new[] { embed }
+                                        };
+                                        await Task.Delay(5000);
+                                        var json = JsonConvert.SerializeObject(payload);
+
+                                        var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+                                        var response = await httpClient.PostAsync(webhookUrl, content);
+                                        Console.WriteLine(response.StatusCode);
+                                    }
+                                }
+                            }
                             
+
+
                             int Log_Txt_Hack = 1;
                             if (Log_Txt_Hack == 1)
                             {
@@ -99,7 +212,8 @@ namespace ElixirAntiCheat
                             Console.Beep(999, 100);
                             Console.Beep();
                             Console.Beep();
-                            System.Environment.Exit(1);
+                            return;
+                            //System.Environment.Exit(1);
                         }
                     }
                 }
