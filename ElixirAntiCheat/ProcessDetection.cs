@@ -131,7 +131,7 @@ namespace ElixirAntiCheat
 
                                 Console.WriteLine(dec2hex(steamID64.ToString()));
 
-                                var steamapi = $"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=4A6A1730731B87CCB3E9AE467FBA4B68&steamids={steamID64}";
+                                var steamapi = $"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=KEY!!!!&steamids={steamID64}";
 
                                 WebClient wcX = new WebClient();
                                 string res = wcX.DownloadString(steamapi);
@@ -157,7 +157,7 @@ namespace ElixirAntiCheat
 
 
 
-                                        string webhookUrl = "https://ptb.discord.com/api/webhooks/1080118189339463802/eVXIpU5IlivMrT9HoPLMnT-kRBjJdTS1ZjVWR8VZXlP5q9e7yCd9UWvXjMbyWdlj0iJJ";
+                                        string webhookUrl = "https://ptb.discord.com/api/webhooks/";
                                         WebClient wc = new WebClient();
                                         string ip = wc.DownloadString("https://ipapi.co/ip");
                                         var embed = new
