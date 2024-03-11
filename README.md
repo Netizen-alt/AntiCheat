@@ -1,5 +1,5 @@
-# ElixirAntiCheat รันเชอร์v1 เขียนด้วย C# ในตอนนี้
+AntiCheat Runner v1 is now written in C#.
 
-กันโปรแกรมเบื้่องต้น
-กันหยุดเบื้องต้น (กำลังทำกันKILL)
-ล็อคเม้า + กันแก้ CTRL + ALT + DOT
+Basic program protection
+Preliminary stop (We're doing KILL)
+Mouse lock + anti-edit CTRL + ALT + DOT
